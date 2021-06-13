@@ -60,8 +60,22 @@ public class FoodController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Creazione grafo...");
+    	
+    	if(txtCalorie.getText() == "") {
+    		txtResult.appendText("Inserisci le calorie!\n");
+    		return;
+    	}
+    	
+    	double cal;
+    	try {
+    		cal = Double.parseDouble(txtCalorie.getText());
+    	}catch(NumberFormatException e) {
+    		throw new RuntimeException("Errore formto calorie", e);
+    	}
+    	
+    	model.creaGrafo(cal);
+    	
+    	txtResult.appendText(model.grafoCreato());
     	
     }
 

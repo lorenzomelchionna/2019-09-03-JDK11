@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import it.polito.tdp.food.model.Adiacenza;
 import it.polito.tdp.food.model.Condiment;
 import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Portion;
@@ -75,7 +77,7 @@ public class FoodDao {
 	}
 	
 	public List<Portion> listAllPortions(){
-		String sql = "SELECT * FROM portion" ;
+		String sql = "SELECT * FROM .portion" ;
 		try {
 			Connection conn = DBConnect.getConnection() ;
 
@@ -109,6 +111,69 @@ public class FoodDao {
 
 	}
 	
+	public List<String> getTypePortions(double maxCalorie){
+		
+		String sql = "SELECT DISTINCT p.portion_display_name AS type "
+				+ "FROM .portion p "
+				+ "WHERE p.calories < ? "
+				+ "GROUP BY p.portion_display_name" ;
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			st.setDouble(1, maxCalorie);
+			
+			List<String> list = new ArrayList<>() ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				
+				list.add(res.getString("type"));
+				
+			}
+			
+			conn.close();
+			return list ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+
+		
+	}
 	
+	public List<Adiacenza> getAdiacenze(){
+		
+		String sql = "SELECT p1.portion_display_name AS t1, p2.portion_display_name AS t2, COUNT(*) AS cnt "
+				+ "FROM .portion p1, .portion p2 "
+				+ "WHERE p1.food_code = p2.food_code AND p1.portion_display_name != p2.portion_display_name "
+				+ "GROUP BY p1.portion_display_name, p1.portion_display_name" ;
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			List<Adiacenza> list = new ArrayList<>() ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				
+				list.add(new Adiacenza(res.getString("t1"), res.getString("t2"), res.getInt("cnt")));
+				
+			}
+			
+			conn.close();
+			return list ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+
+		
+	}
 
 }
